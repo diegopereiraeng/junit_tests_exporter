@@ -1,0 +1,71 @@
+import os
+import xml.etree.ElementTree as ET
+import sys
+import json
+import glob
+
+# Initialize counters
+num_tests = 0
+num_failures = 0
+
+# List to hold failed test details
+failed_tests_details = []
+
+def process_xml_file(file_path):
+    global num_tests, num_failures
+    try:
+        print(f"Processing file: {file_path}")
+        tree = ET.parse(file_path)
+        root = tree.getroot()
+        tests_in_file = int(root.get('tests', '0'))
+        failures_in_file = int(root.get('failures', '0'))
+        num_tests += tests_in_file
+        num_failures += failures_in_file
+        
+        for testcase in root.findall('.//testcase'):
+            failure = testcase.find('failure')
+            if failure is not None:
+                failed_tests_details.append({
+                    'class': testcase.get('classname'),
+                    'name': testcase.get('name'),
+                    'message': failure.get('message'),
+                    'stack_trace': failure.text
+                })
+    except ET.ParseError as e:
+        print(f"Error parsing XML in {file_path}: {e}")
+
+# Retrieve the glob pattern from the environment variable
+pattern = os.getenv('PLUGIN_EXPRESSION', '**/*.xml')  # Default to '**/*.xml' if not set
+print(f"Pattern: {pattern}")
+
+# Use glob to find files matching the pattern
+for file_path in glob.glob(pattern, recursive=True):
+    process_xml_file(file_path)
+
+if num_tests > 0:
+    failure_rate = (num_failures / num_tests) * 100
+    print(f"Total tests run: {num_tests}")
+    print(f"Total failures: {num_failures}")
+    print(f"Failure Rate: {failure_rate}%")
+
+    threshold = os.getenv('PLUGIN_THRESHOLD', 3)
+    if failure_rate > threshold:
+        print(f"Failure rate is higher than {threshold}% ({failure_rate}%). Exiting with error.")
+        sys.exit(1)
+    
+else:
+    print("No tests were run or total_tests is 0. Exiting with error.")
+    sys.exit(1)
+
+# Setting environment variables using os.environ
+os.environ['TOTAL_TESTS'] = str(num_tests)
+os.environ['TOTAL_FAILURES'] = str(num_failures)
+os.environ['FAILURE_RATE'] = str(failure_rate)
+os.environ['FAILED_TESTS_JSON'] = json.dumps(failed_tests_details)
+
+# Optional: Demonstrating how to access the newly set environment variables within the same Python script
+print("Environment Variables Set:")
+print("TOTAL_TESTS:", os.environ.get('TOTAL_TESTS'))
+print("TOTAL_FAILURES:", os.environ.get('TOTAL_FAILURES'))
+print("FAILURE_RATE:", os.environ.get('FAILURE_RATE'))
+print("FAILED_TESTS_JSON:", os.environ.get('FAILED_TESTS_JSON'))
