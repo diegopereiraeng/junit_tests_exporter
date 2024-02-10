@@ -18,10 +18,27 @@ When using the `diegokoala/junit_tests_exporter:latest` Docker image, no additio
 
 ## Configuration
 
-- **`PLUGIN_EXPRESSION`**: (Optional) Glob pattern to match JUnit XML files. Defaults to `**/*.xml`.
-- **`PLUGIN_THRESHOLD`**: (Optional) Failure rate threshold as a percentage. Defaults to `5`.
+- **`EXPRESSION`**: (Optional) Glob pattern to match JUnit XML files. Defaults to `**/*.xml`.
+- **`THRESHOLD`**: (Optional) Failure rate acceptance threshold as a percentage. Defaults to `0`. Any error fails by default
 
 ## Usage
+
+### Harness CI/CD
+
+Example step configuration in Harness where threshold is 3 if the 2 variables comparinson matches:
+
+```yaml
+steps:
+  - step:
+      type: Plugin
+      name: junit_tests_exporter
+      identifier: junit_tests_exporter
+      spec:
+        connectorRef: account.dockerHub
+        image: diegokoala/junit_tests_exporter:latest
+        settings:
+          PLUGIN_THRESHOLD: "<+<+stage.variables.filter_tags> == \"test_api\" && <+stage.variables.environment> == 'dev' ? 3 : 0>"
+```
 
 ### Drone CI
 
@@ -36,22 +53,6 @@ steps:
     environment:
       PLUGIN_EXPRESSION: "**/*.xml"
       PLUGIN_THRESHOLD: 5
-```
-### Harness CI/CD
-
-Example step configuration in Harness:
-
-```yaml
-steps:
-  - step:
-      type: Plugin
-      name: junit_tests_exporter
-      identifier: junit_tests_exporter
-      spec:
-        connectorRef: account.dockerHub
-        image: diegokoala/junit_tests_exporter:latest
-        settings:
-          PLUGIN_THRESHOLD: "<+expression: <+stage.variables.environment> == 'prod' ? 5 : 10>"
 ```
 
 ## Customization
