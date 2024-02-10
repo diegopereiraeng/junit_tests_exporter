@@ -5,7 +5,7 @@ import subprocess
 import json
 import traceback
 import glob  # pattern matching
-from prettytable import PrettyTable # python image need to add pip install prettytable
+from prettytable import PrettyTable # python iage need to add pip install prettytable
 
 class Colors:
     HEADER = '\033[95m'
@@ -86,6 +86,15 @@ def process_directories_old(include_dirs):
         else:
             log_warning(f"Directory '{include_dir}' does not exist or is not accessible.")
 
+# Function to write environment variables to the .env file
+def write_env_file(variables, file_path):
+    try:
+        with open(file_path, 'w') as f:
+            for key, value in variables.items():
+                f.write(f"{key}={value}\n")
+    except IOError as e:
+        print(f"Error writing to .env file: {e}")
+
 def output_results():
     log_info("JUnit Tests Exporter - Summary of Test Results")
     
@@ -121,6 +130,20 @@ def output_results():
         os.environ['TOTAL_FAILURES'] = str(num_failures)
         os.environ['FAILURE_RATE'] = str(failure_rate) 
         os.environ['FAILED_TESTS_JSON'] = json.dumps(failed_tests_details)
+
+        # Prepare your environment variables for writing to the .env file
+        env_variables = {
+            "TOTAL_TESTS": os.environ['TOTAL_TESTS'],
+            "TOTAL_FAILURES": os.environ['TOTAL_FAILURES'],
+            "FAILURE_RATE": os.environ['FAILURE_RATE'],
+            "FAILED_TESTS_JSON": os.environ['FAILED_TESTS_JSON'],
+        }
+
+        # Specify the path to your .env file
+        file_path = os.getenv('DRONE_OUTPUT', 'default_env_file.env')
+
+        # Call the function to write the environment variables to the .env file
+        write_env_file(env_variables, file_path)
         
         print(colorize(f"Total tests run: {num_tests}", Colors.OKGREEN))
         print(colorize(f"Total failures: {num_failures}", Colors.WARNING))
