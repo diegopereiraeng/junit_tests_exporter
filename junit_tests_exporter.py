@@ -112,7 +112,9 @@ def output_results():
         
         print(colorize("Failed Tests Details:", Colors.FAIL))
         print(failed_tests_table)
-
+    # Gate Status Table
+    gate_status_table = PrettyTable()
+    gate_status_table.field_names = ["Gate Status", "Details"]
     if num_tests > 0:
         failure_rate = (num_failures / num_tests) * 100  # Calculate failure_rate immediately after checking num_tests
         num_failures_text = colorize(num_failures, Colors.FAIL if num_failures > 0 else Colors.OKGREEN)
@@ -145,17 +147,23 @@ def output_results():
         # Call the function to write the environment variables to the .env file
         write_env_file(env_variables, file_path)
         
-        print(colorize(f"Total tests run: {num_tests}", Colors.OKGREEN))
-        print(colorize(f"Total failures: {num_failures}", Colors.WARNING))
-        print(colorize(f"Failure Rate: {failure_rate}%", Colors.WARNING if failure_rate > 0 else Colors.OKGREEN))
+        # print(colorize(f"Total tests run: {num_tests}", Colors.OKGREEN))
+        # print(colorize(f"Total failures: {num_failures}", Colors.WARNING))
+        # print(colorize(f"Failure Rate: {failure_rate}%", Colors.WARNING if failure_rate > 0 else Colors.OKGREEN))
 
         # Use environment variable for threshold with a default value
         threshold = float(os.getenv('PLUGIN_THRESHOLD', '0'))  # Ensure it's a float for comparison
+        
         if failure_rate > threshold:
             log_error(f"Failure rate is higher than {threshold}% ({failure_rate}%). Exiting with error.")
+            gate_status_table.add_row([colorize("FAILED", Colors.FAIL), f"Failure rate ({failure_rate:.2f}%) exceeds threshold ({threshold}%)"])
+            print(gate_status_table)
             sys.exit(1)
+        gate_status_table.add_row([colorize("PASSED", Colors.OKGREEN), f"Failure rate ({failure_rate:.2f}%) is within acceptable threshold ({threshold}%)"])
+        print(gate_status_table)
     else:
-        log_error("No tests were run or total_tests is 0. Exiting with error.")
+        gate_status_table.add_row([colorize("FAILED", Colors.FAIL), f"No tests were run or total_tests is 0. Exiting with error."])
+        print(gate_status_table)
         sys.exit(1)
 
 def print_plugin_header():
