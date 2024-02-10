@@ -8,6 +8,8 @@ ENV PYTHONUNBUFFERED=1 \
 # Set the working directory in the container
 WORKDIR /app
 
+RUN pip install --no-cache-dir prettytable
+
 # Install OS dependencies (if any) using the no-install-recommends option to keep the image clean
 # Example: RUN apt-get update && apt-get install -y --no-install-recommends <package-name> && rm -rf /var/lib/apt/lists/*
 
