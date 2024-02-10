@@ -22,4 +22,4 @@ RUN pip install --no-cache-dir prettytable
 COPY . .
 
 # CMD command to run your script. Replace script.py with your actual script name
-CMD ["python", "./junit_tests_exporter.py"]
+CMD ["python", "/app/junit_tests_exporter.py"]
