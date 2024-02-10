@@ -182,15 +182,14 @@ def print_plugin_header():
 
 #   |        \ >    < |  |_> >(  <_> )|  | \/ |  |  \  ___/ |  | \/
 #  /_______  //__/\_ \|   __/  \____/ |__|    |__|   \___  >|__|   
-#          \/       \/|__|                               \/        """
-    plugin_line = """#    ______   ______   ______   ______   ______   ______   ______   ______   ______ 
-#   /_____/  /_____/  /_____/  /_____/  /_____/  /_____/  /_____/  /_____/  /_____/ 
-    """
+#          \/       \/|__|                               \/        
+"""
+
 
     developer_name = "Developed by: Diego Paes Ramalho Pereira"
 
     print(colorize(plugin_name_art, Colors.HEADER)) 
-    print(colorize(plugin_line, Colors.HEADER))  
+
     print(colorize(developer_name, Colors.OKGREEN)) 
 
 def main():
