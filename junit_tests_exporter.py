@@ -107,6 +107,9 @@ def output_results():
         failed_tests_table.align["Message"] = "l"
         failed_tests_table.align["Stack Trace"] = "l"
         
+        # Set maximum width for the 'Stack Trace' column
+        failed_tests_table.max_width["Stack Trace"] = 50  # Adjust the value based on your needs
+
         for test in failed_tests_details:
             failed_tests_table.add_row([test['class'], test['name'], test['message'], test['stack_trace']])
         
