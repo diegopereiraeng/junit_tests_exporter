@@ -105,8 +105,8 @@ def output_results():
         failed_tests_table.align = "l"
 
         # Adjust the 'max_width' settings for the columns
-        failed_tests_table.max_width["Test"] = 25  # Set a narrower max width for the Test column
-        failed_tests_table.max_width["Stack Trace"] = 120  # Set a wider max width for the Stack Trace column
+        failed_tests_table.max_width["Test"] = 30  # Set a narrower max width for the Test column
+        # failed_tests_table.max_width["Stack Trace"] = 120  # Set a wider max width for the Stack Trace column
 
         for test in failed_tests_details:
             failed_tests_table.add_row([test['class'], test['name'], colorize(test['message'], Colors.WARNING) , colorize(test['stack_trace'], Colors.FAIL)])
