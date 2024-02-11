@@ -17,6 +17,13 @@ class Colors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+def colorize_multiline(text, color):
+    """
+    Applies ANSI color codes to each line in a multi-line string.
+    """
+    colored_lines = [f"{color}{line}{Colors.ENDC}" for line in text.split('\n')]
+    return '\n'.join(colored_lines)
+
 def colorize(text, color):
     return f"{color}{str(text)}{Colors.ENDC}"
 
@@ -116,8 +123,8 @@ def output_results():
             failed_tests_table.add_row([
                 colorize(test['class'], Colors.BOLD),  # Make class names bold
                 test['name'],  # Keep test names in default color for neutrality
-                colorize(test['message'], Colors.WARNING),  # Warning messages in yellow
-                colorize(test['stack_trace'], Colors.FAIL)  # Error details in red
+                colorize_multiline(test['message'], Colors.WARNING),  # Warning messages in yellow
+                colorize_multiline(test['stack_trace'], Colors.FAIL)  # Error details in red
             ])
         
         print(colorize("Failed Tests Details:", Colors.FAIL))
