@@ -37,7 +37,7 @@ steps:
         connectorRef: account.dockerHub
         image: diegokoala/junit_tests_exporter:latest
         settings:
-          THRESHOLD: "<+<+stage.variables.filter_tags> == \"test_api\" && <+stage.variables.environment> == 'dev' ? 3 : 0>"
+          THRESHOLD: <+<+stage.variables.filter_tags> == "test_api" && <+stage.variables.environment> == "dev" ? 3 : 0>
 ```
 ![Harness Plugin Header](junit-exporter-1.png "Plugin Header")
 ![Stack Trace Visualization](junit-exporter-2.png "Stack Trace Errors Visualization")
