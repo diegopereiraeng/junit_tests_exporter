@@ -112,7 +112,13 @@ def output_results():
         
 
         for test in failed_tests_details:
-            failed_tests_table.add_row([test['class'], colorize(f"{test['name']}", Colors.WARNING), colorize(f"{test['message']}", Colors.WARNING) , colorize(f"{test['stack_trace']}", Colors.FAIL)])
+            # failed_tests_table.add_row([test['class'], colorize(f"{test['name']}", Colors.WARNING), colorize(f"{test['message']}", Colors.WARNING) , colorize(f"{test['stack_trace']}", Colors.FAIL)])
+            failed_tests_table.add_row([
+                colorize(test['class'], Colors.BOLD),  # Make class names bold
+                test['name'],  # Keep test names in default color for neutrality
+                colorize(test['message'], Colors.WARNING),  # Warning messages in yellow
+                colorize(test['stack_trace'], Colors.FAIL)  # Error details in red
+            ])
         
         print(colorize("Failed Tests Details:", Colors.FAIL))
         print(failed_tests_table)
