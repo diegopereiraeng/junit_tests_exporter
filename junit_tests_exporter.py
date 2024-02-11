@@ -161,7 +161,7 @@ def output_results():
             "TOTAL_TESTS": os.environ['TOTAL_TESTS'],
             "TOTAL_FAILURES": os.environ['TOTAL_FAILURES'],
             "FAILURE_RATE": os.environ['FAILURE_RATE'],
-            "FAILED_TESTS_JSON": json_string.replace("\n", "\\n"),
+            "FAILED_TESTS_JSON": json_string.replace("\n", ""),
         }
 
         # Specify the path to your .env file
