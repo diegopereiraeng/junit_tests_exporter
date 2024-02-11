@@ -37,8 +37,11 @@ steps:
         connectorRef: account.dockerHub
         image: diegokoala/junit_tests_exporter:latest
         settings:
-          PLUGIN_THRESHOLD: "<+<+stage.variables.filter_tags> == \"test_api\" && <+stage.variables.environment> == 'dev' ? 3 : 0>"
+          THRESHOLD: "<+<+stage.variables.filter_tags> == \"test_api\" && <+stage.variables.environment> == 'dev' ? 3 : 0>"
 ```
+![Harness Plugin Header](junit-exporter-1.png "Plugin Header")
+![Stack Trace Visualization](junit-exporter-2.png "Stack Trace Errors Visualization")
+![Summary Results](junit-exporter-3.png "Summary Results and Failure Rate Gate")
 
 ### Drone CI
 
@@ -51,8 +54,8 @@ steps:
     commands:
       - junit_tests_exporter.py
     environment:
-      PLUGIN_EXPRESSION: "**/*.xml"
-      PLUGIN_THRESHOLD: 5
+      EXPRESSION: "**/*.xml"
+      THRESHOLD: 5
 ```
 
 ## Customization
