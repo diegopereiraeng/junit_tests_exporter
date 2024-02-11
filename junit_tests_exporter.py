@@ -144,18 +144,21 @@ def output_results():
         summary_table.add_row([num_tests, num_failures_text, failure_rate_text])
         print(summary_table)
 
+        # Convert to JSON, ensuring it's compact
+        json_string = json.dumps(failed_tests_details)
+
         # Setting environment variables using os.environ
         os.environ['TOTAL_TESTS'] = str(num_tests)
         os.environ['TOTAL_FAILURES'] = str(num_failures)
         os.environ['FAILURE_RATE'] = str(failure_rate) 
-        os.environ['FAILED_TESTS_JSON'] = json.dumps(failed_tests_details)
+        os.environ['FAILED_TESTS_JSON'] = json_string
 
         # Prepare your environment variables for writing to the .env file
         env_variables = {
             "TOTAL_TESTS": os.environ['TOTAL_TESTS'],
             "TOTAL_FAILURES": os.environ['TOTAL_FAILURES'],
             "FAILURE_RATE": os.environ['FAILURE_RATE'],
-            "FAILED_TESTS_JSON": os.environ['FAILED_TESTS_JSON'],
+            "FAILED_TESTS_JSON": json_string,
         }
 
         # Specify the path to your .env file
