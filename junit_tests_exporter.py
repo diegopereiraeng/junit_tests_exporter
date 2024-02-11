@@ -127,8 +127,7 @@ def output_results():
                 colorize_multiline(test['stack_trace'], Colors.FAIL)  # Error details in red
             ])
         
-        print(colorize("Failed Tests Details:", Colors.FAIL))
-        print(failed_tests_table)
+        
     # Gate Status Table
     gate_status_table = PrettyTable()
     gate_status_table.field_names = ["Gate Status", "Details"]
@@ -137,6 +136,10 @@ def output_results():
         num_failures_text = colorize(num_failures, Colors.FAIL if num_failures > 0 else Colors.OKGREEN)
         failure_rate_text = colorize(f"{failure_rate:.2f}%", Colors.OKGREEN if failure_rate == 0 else Colors.WARNING if failure_rate < 80 else Colors.FAIL)
 
+        if num_failures > 0:
+            print(colorize(f"{num_failures} Failed Tests Found!", Colors.FAIL))
+            print(colorize("Failed Tests Details List:", Colors.FAIL))
+            print(failed_tests_table)
 
         # Summary table
         summary_table = PrettyTable()
