@@ -114,8 +114,8 @@ def output_results():
         # Adjust the 'max_width' settings for the columns
         # failed_tests_table.max_width["Test"] = 50  # Set a narrower max width for the Test column
         # failed_tests_table.max_width["Stack Trace"] = 600  # Set a wider max width for the Stack Trace column
-        failed_tests_table._min_width = {"Stack Trace" : 120}
-        failed_tests_table._max_width = {"Stack Trace" : 120, "Test" : 40}
+        failed_tests_table._min_width = {"Stack Trace" : 180}
+        failed_tests_table._max_width = {"Stack Trace" : 180, "Test" : 40}
         
 
         for test in failed_tests_details:
