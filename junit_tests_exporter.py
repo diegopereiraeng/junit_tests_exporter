@@ -148,7 +148,9 @@ def output_results():
         print(summary_table)
 
         # Convert to JSON, ensuring it's compact
-        json_string = json.dumps(failed_tests_details)
+        # json_string = json.dumps(failed_tests_details)
+        json_string = json.dumps(failed_tests_details, separators=(',', ':'))
+
 
         # Setting environment variables using os.environ
         os.environ['TOTAL_TESTS'] = str(num_tests)
