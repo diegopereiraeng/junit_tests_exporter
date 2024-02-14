@@ -185,7 +185,7 @@ def output_results():
 
         # Summary table
         summary_table = PrettyTable()
-        summary_table.field_names = ["Total Tests Run", "Total Errors/Failures", "Failure Rate"]
+        summary_table.field_names = ["Total Tests", "Total Errors/Failures", "Failure Rate"]
         summary_table.add_row([num_tests, num_failures_text, failure_rate_text])
         print(summary_table)
 
