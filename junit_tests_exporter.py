@@ -170,7 +170,7 @@ def output_results():
         errors_failures = num_failures + num_errors
         failure_rate = (errors_failures / num_tests) * 100  # Calculate failure_rate immediately after checking num_tests
         
-        num_failures_text = colorize(num_failures, Colors.FAIL if num_failures > 0 else Colors.OKGREEN)
+        num_failures_text = colorize(errors_failures, Colors.FAIL if num_failures > 0 else Colors.OKGREEN)
         failure_rate_text = colorize(f"{failure_rate:.2f}%", Colors.OKGREEN if failure_rate == 0 else Colors.WARNING if failure_rate < 80 else Colors.FAIL)
 
         if num_errors > 0:
@@ -185,7 +185,7 @@ def output_results():
 
         # Summary table
         summary_table = PrettyTable()
-        summary_table.field_names = ["Total Tests Run", "Total Failures", "Failure Rate"]
+        summary_table.field_names = ["Total Tests Run", "Total Errors/Failures", "Failure Rate"]
         summary_table.add_row([num_tests, num_failures_text, failure_rate_text])
         print(summary_table)
 
