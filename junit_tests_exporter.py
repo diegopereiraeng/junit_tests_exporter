@@ -55,10 +55,12 @@ def process_xml_file(file_path):
         root = tree.getroot()
 
         tests_in_file = int(root.get('tests', '0'))
+        
         failures_in_file = int(root.get('failures', '0'))
         num_tests += tests_in_file
         num_failures += failures_in_file
-
+        if os.getenv('PLUGIN_DEBUG', 'false') == "true":
+            log_warning(root)
         for testcase in root.findall('.//testcase'):
             failure = testcase.find('failure')
             if failure is not None:
@@ -68,6 +70,11 @@ def process_xml_file(file_path):
                     'message': failure.get('message'),
                     'stack_trace': failure.text
                 })
+            else:
+                if os.getenv('PLUGIN_DEBUG', 'false') == "true":
+                    log_success(f"Class: '{testcase.get('classname')}'")
+                    log_success(f"Name: '{testcase.get('classname')}'")
+                    log_success(f"Testcase: '{testcase}'")
         log_info(f"Processed file '{file_path}' successfully.")
         if tests_in_file > 0:
             log_success(f"Processed '{tests_in_file}' tests in file.")
