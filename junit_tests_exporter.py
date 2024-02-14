@@ -64,8 +64,8 @@ def process_xml_file(file_path):
         num_failures += failures_in_file
         num_errors += errors_in_file  # Accumulate errors
 
-        if os.getenv('PLUGIN_DEBUG', 'false') == "true":
-            log_warning(ET.tostring(root, encoding='utf8').decode('utf8'))
+        # if os.getenv('PLUGIN_DEBUG', 'false') == "true":
+        #     log_warning(ET.tostring(root, encoding='utf8').decode('utf8'))
         for testcase in root.findall('.//testcase'):
             failure = testcase.find('failure')
             error = testcase.find('error')  # Look for error elements
@@ -185,12 +185,17 @@ def output_results():
         summary_table.add_row([num_tests, num_failures_text, failure_rate_text])
         print(summary_table)
 
-        # Convert to JSON, ensuring it's compact
-        # json_string = json.dumps(failed_tests_details)
-        # failures_json_string = json.dumps(failed_tests_details, separators=(',', ':'))
-        # errors_json_string = json.dumps(error_tests_table, separators=(',', ':'))
-        failures_json_string = json.dumps(failed_tests_details, sort_keys=True, indent=0)
-        errors_json_string = json.dumps(error_tests_table, sort_keys=True, indent=0)
+        # Serialize the failure and error details to single-line JSON strings
+        failures_json_string = json.dumps(failed_tests_details, separators=(',', ':'))
+        errors_json_string = json.dumps(error_tests_details, separators=(',', ':'))
+        if os.getenv('PLUGIN_DEBUG', 'false') == "true":
+            log_info("Error JSON")
+            log_info(errors_json_string)
+            log_info("Failed JSON")
+            log_info(failures_json_string)
+            
+        # failures_json_string = json.dumps(failed_tests_details, sort_keys=True, indent=0)
+        # errors_json_string = json.dumps(error_tests_table, sort_keys=True, indent=0)
 
         # Setting environment variables using os.environ
         os.environ['TOTAL_TESTS'] = str(num_tests)
