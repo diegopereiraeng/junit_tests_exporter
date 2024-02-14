@@ -46,23 +46,29 @@ def log_error_with_traceback(message, exc):
 
 num_tests = 0
 num_failures = 0
+num_errors = 0
 failed_tests_details = []
+error_tests_details = []
 
 def process_xml_file(file_path):
-    global num_tests, num_failures
+    global num_tests, num_failures, num_errors
     try:
         tree = ET.parse(file_path)
         root = tree.getroot()
 
         tests_in_file = int(root.get('tests', '0'))
-        
         failures_in_file = int(root.get('failures', '0'))
+        errors_in_file = int(root.get('errors', '0'))  # Parse errors
+
         num_tests += tests_in_file
         num_failures += failures_in_file
+        num_errors += errors_in_file  # Accumulate errors
+
         if os.getenv('PLUGIN_DEBUG', 'false') == "true":
             log_warning(ET.tostring(root, encoding='utf8').decode('utf8'))
         for testcase in root.findall('.//testcase'):
             failure = testcase.find('failure')
+            error = testcase.find('error')  # Look for error elements
             if failure is not None:
                 failed_tests_details.append({
                     'class': testcase.get('classname'),
@@ -70,14 +76,18 @@ def process_xml_file(file_path):
                     'message': failure.get('message'),
                     'stack_trace': failure.text
                 })
-            else:
-                if os.getenv('PLUGIN_DEBUG', 'false') == "true":
-                    log_success(f"Class: '{testcase.get('classname')}'")
-                    log_success(f"Name: '{testcase.get('classname')}'")
-                    log_success(f"Testcase: '{testcase}'")
+            elif error is not None:  # Handle errors separately
+                error_tests_details.append({
+                    'class': testcase.get('classname'),
+                    'name': testcase.get('name'),
+                    'message': error.get('message'),
+                    'stack_trace': error.text
+                })
         log_info(f"Processed file '{file_path}' successfully.")
         if tests_in_file > 0:
             log_success(f"Processed '{tests_in_file}' tests in file.")
+            if errors_in_file > 0:
+                log_warning(f"Processed '{errors_in_file}' errors in file.")
             if failures_in_file > 0:
                 log_warning(f"Processed '{failures_in_file}' failures in file.")
     except Exception as e:
@@ -112,6 +122,20 @@ def write_env_file(variables, file_path):
 def output_results():
     log_info("JUnit Tests Exporter - Summary of Test Results")
     
+    # Error tests table, similar to failed tests table
+    if error_tests_details:
+        error_tests_table = PrettyTable()
+        error_tests_table.field_names = ["Class", "Test", "Message", "Stack Trace"]
+        error_tests_table.align = "l"
+        error_tests_table._min_width = {"Stack Trace" : 180}
+        error_tests_table._max_width = {"Stack Trace" : 180, "Test" : 40}
+        for test in error_tests_details:
+            error_tests_table.add_row([
+                colorize(test['class'], Colors.BOLD),
+                test['name'],
+                colorize_multiline(test['message'], Colors.WARNING),
+                colorize_multiline(test['stack_trace'], Colors.FAIL)
+            ])
     if failed_tests_details:
         # Creating a table for failed tests details
         failed_tests_table = PrettyTable()
@@ -143,6 +167,11 @@ def output_results():
         num_failures_text = colorize(num_failures, Colors.FAIL if num_failures > 0 else Colors.OKGREEN)
         failure_rate_text = colorize(f"{failure_rate:.2f}%", Colors.OKGREEN if failure_rate == 0 else Colors.WARNING if failure_rate < 80 else Colors.FAIL)
 
+        if num_errors > 0:
+            print(colorize(f"{num_errors} Errors Found!", Colors.FAIL))
+            print(colorize("Error Tests Details List:", Colors.FAIL))
+            print(error_tests_table)
+        
         if num_failures > 0:
             print(colorize(f"{num_failures} Failed Tests Found!", Colors.FAIL))
             print(colorize("Failed Tests Details List:", Colors.FAIL))
