@@ -60,7 +60,7 @@ def process_xml_file(file_path):
         num_tests += tests_in_file
         num_failures += failures_in_file
         if os.getenv('PLUGIN_DEBUG', 'false') == "true":
-            log_warning(root)
+            log_warning(ET.tostring(root, encoding='utf8').decode('utf8'))
         for testcase in root.findall('.//testcase'):
             failure = testcase.find('failure')
             if failure is not None:
