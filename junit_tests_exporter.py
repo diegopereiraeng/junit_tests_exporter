@@ -69,19 +69,24 @@ def process_xml_file(file_path):
         for testcase in root.findall('.//testcase'):
             failure = testcase.find('failure')
             error = testcase.find('error')  # Look for error elements
+            system_error = testcase.find('system-err')
             if failure is not None:
                 failed_tests_details.append({
                     'class': testcase.get('classname'),
                     'name': testcase.get('name'),
                     'message': failure.get('message'),
-                    'stack_trace': failure.text
+                    'type': "N/A" if failure.type is None else failure.type,
+                    'failure': failure.text,
+                    'stack_trace': "N/A" if system_error is None else system_error.text,
                 })
             elif error is not None:  # Handle errors separately
                 error_tests_details.append({
                     'class': testcase.get('classname'),
                     'name': testcase.get('name'),
                     'message': error.get('message'),
-                    'stack_trace': error.text
+                    'type': "N/A" if error.type is None else error.type,
+                    'failure': error.text,
+                    'stack_trace': "N/A" if system_error is None else system_error.text,
                 })
         log_info(f"Processed file '{file_path}' successfully.")
         if tests_in_file > 0:
@@ -138,19 +143,21 @@ def output_results():
                 colorize(test['class'], Colors.BOLD),
                 test['name'],
                 colorize_multiline(test['message'], Colors.WARNING),
-                colorize_multiline(test['stack_trace'], Colors.FAIL)
+                colorize(test['type'], Colors.WARNING),  # Warning messages in yellow
+                colorize_multiline(test['stack_trace'], Colors.FAIL),  # Error details in red
+                colorize_multiline(test['failure'], Colors.FAIL)  # Error details in red
             ])
     if failed_tests_details:
         # Creating a table for failed tests details
         failed_tests_table = PrettyTable()
-        failed_tests_table.field_names = ["Class", "Test", "Message", "Stack Trace"]
+        failed_tests_table.field_names = ["Class", "Test", "Message", "Type", "Stack Traces", "Errors"]
         failed_tests_table.align = "l"
 
         # Adjust the 'max_width' settings for the columns
         # failed_tests_table.max_width["Test"] = 50  # Set a narrower max width for the Test column
         # failed_tests_table.max_width["Stack Trace"] = 600  # Set a wider max width for the Stack Trace column
-        failed_tests_table._min_width = {"Stack Trace" : 180}
-        failed_tests_table._max_width = {"Stack Trace" : 180, "Test" : 40}
+        failed_tests_table._min_width = {"Stack Trace" : 180, "Errors" : 180}
+        failed_tests_table._max_width = {"Stack Trace" : 180, "Errors" : 180, "Test" : 40}
         
 
         for test in failed_tests_details:
@@ -159,7 +166,9 @@ def output_results():
                 colorize(test['class'], Colors.BOLD),  # Make class names bold
                 test['name'],  # Keep test names in default color for neutrality
                 colorize_multiline(test['message'], Colors.WARNING),  # Warning messages in yellow
-                colorize_multiline(test['stack_trace'], Colors.FAIL)  # Error details in red
+                colorize(test['type'], Colors.WARNING),  # Warning messages in yellow
+                colorize_multiline(test['stack_trace'], Colors.FAIL),  # Error details in red
+                colorize_multiline(test['failure'], Colors.FAIL)  # Error details in red
             ])
         
         
