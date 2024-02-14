@@ -59,7 +59,7 @@ def process_xml_file(file_path):
         tests_in_file = int(root.get('tests', '0'))
         failures_in_file = int(root.get('failures', '0'))
         errors_in_file = int(root.get('errors', '0'))  # Parse errors
-
+        
         num_tests += tests_in_file
         num_failures += failures_in_file
         num_errors += errors_in_file  # Accumulate errors
@@ -86,6 +86,10 @@ def process_xml_file(file_path):
         log_info(f"Processed file '{file_path}' successfully.")
         if tests_in_file > 0:
             log_success(f"Processed '{tests_in_file}' tests in file.")
+            if os.getenv('PLUGIN_DEBUG', 'false') == "true":
+                # Serialize the entire XML tree to a byte string and decode it
+                xml_str = ET.tostring(root, encoding='unicode')
+                print(xml_str)
             if errors_in_file > 0:
                 log_warning(f"Processed '{errors_in_file}' errors in file.")
             if failures_in_file > 0:
