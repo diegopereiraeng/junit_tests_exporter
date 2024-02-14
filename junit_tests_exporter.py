@@ -75,7 +75,7 @@ def process_xml_file(file_path):
                     'class': testcase.get('classname'),
                     'name': testcase.get('name'),
                     'message': failure.get('message'),
-                    'type': "N/A" if failure.type is None else failure.type,
+                    'type': "N/A" if failure.get('type') is None else failure.get('type'),
                     'failure': failure.text,
                     'stack_trace': "N/A" if system_error is None else system_error.text,
                 })
@@ -84,7 +84,7 @@ def process_xml_file(file_path):
                     'class': testcase.get('classname'),
                     'name': testcase.get('name'),
                     'message': error.get('message'),
-                    'type': "N/A" if error.type is None else error.type,
+                    'type': "N/A" if error.get('type') is None else error.get('type'),
                     'failure': error.text,
                     'stack_trace': "N/A" if system_error is None else system_error.text,
                 })
