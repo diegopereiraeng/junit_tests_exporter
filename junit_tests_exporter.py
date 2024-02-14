@@ -134,7 +134,7 @@ def output_results():
     # Error tests table, similar to failed tests table
     if error_tests_details:
         error_tests_table = PrettyTable()
-        error_tests_table.field_names = ["Class", "Test", "Message", "Stack Trace"]
+        error_tests_table.field_names =  ["Class", "Test", "Message", "Type", "Stack Traces", "Errors"]
         error_tests_table.align = "l"
         error_tests_table._min_width = {"Stack Trace" : 180}
         error_tests_table._max_width = {"Stack Trace" : 180, "Test" : 40}
