@@ -163,7 +163,9 @@ def output_results():
     gate_status_table = PrettyTable()
     gate_status_table.field_names = ["Gate Status", "Details"]
     if num_tests > 0:
-        failure_rate = (num_failures / num_tests) * 100  # Calculate failure_rate immediately after checking num_tests
+        errors_failures = num_failures + num_errors
+        failure_rate = (errors_failures / num_tests) * 100  # Calculate failure_rate immediately after checking num_tests
+        
         num_failures_text = colorize(num_failures, Colors.FAIL if num_failures > 0 else Colors.OKGREEN)
         failure_rate_text = colorize(f"{failure_rate:.2f}%", Colors.OKGREEN if failure_rate == 0 else Colors.WARNING if failure_rate < 80 else Colors.FAIL)
 
@@ -185,21 +187,28 @@ def output_results():
 
         # Convert to JSON, ensuring it's compact
         # json_string = json.dumps(failed_tests_details)
-        json_string = json.dumps(failed_tests_details, separators=(',', ':'))
-
+        # failures_json_string = json.dumps(failed_tests_details, separators=(',', ':'))
+        # errors_json_string = json.dumps(error_tests_table, separators=(',', ':'))
+        failures_json_string = json.dumps(failed_tests_details, sort_keys=True, indent=0)
+        errors_json_string = json.dumps(error_tests_table, sort_keys=True, indent=0)
 
         # Setting environment variables using os.environ
         os.environ['TOTAL_TESTS'] = str(num_tests)
         os.environ['TOTAL_FAILURES'] = str(num_failures)
+        os.environ['TOTAL_ERRORS'] = str(num_errors)
         os.environ['FAILURE_RATE'] = str(failure_rate) 
-        os.environ['FAILED_TESTS_JSON'] = json_string
+        os.environ['FAILURES_TESTS_JSON'] = failures_json_string
+        os.environ['ERRORS_TESTS_JSON'] = errors_json_string
 
         # Prepare your environment variables for writing to the .env file
         env_variables = {
-            "TOTAL_TESTS": os.environ['TOTAL_TESTS'],
-            "TOTAL_FAILURES": os.environ['TOTAL_FAILURES'],
-            "FAILURE_RATE": os.environ['FAILURE_RATE'],
-            "FAILED_TESTS_JSON": json_string.replace("\n", ""),
+            "TOTAL_TESTS": str(num_tests),
+            "TOTAL_FAILURES": str(num_failures),
+            "TOTAL_ERRORS": str(num_errors),
+            "TOTAL_ERRORS_FAILED": str(num_errors+num_failures),
+            "FAILURE_RATE": str(failure_rate),
+            "FAILURES_TESTS_JSON": failures_json_string.replace("\n", ""),
+            "ERRORS_TESTS_JSON": errors_json_string.replace("\n", ""),
         }
 
         # Specify the path to your .env file
