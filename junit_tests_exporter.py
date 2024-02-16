@@ -68,7 +68,9 @@ def process_xml_file(file_path):
             tests_in_file += int(root.get('tests', 0))
             failures_in_file += int(root.get('failures', 0))
             errors_in_file += int(root.get('errors', 0))
-            print(f"DEBUG: {root.get('name')}: Tests={tests_in_suite}, Failures={failures_in_suite}, Errors={errors_in_suite}")  # Debug print
+            if os.getenv('PLUGIN_DEBUG', 'false') == "true":
+                # Debug print
+                print(f"DEBUG: {root.get('name')}: Tests={tests_in_file}, Failures={failures_in_file}, Errors={errors_in_file}")
             
             num_tests += tests_in_file
             num_failures += failures_in_file
