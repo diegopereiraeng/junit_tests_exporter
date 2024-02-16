@@ -56,51 +56,71 @@ def process_xml_file(file_path):
         tree = ET.parse(file_path)
         root = tree.getroot()
 
-        tests_in_file = int(root.get('tests', '0'))
-        failures_in_file = int(root.get('failures', '0'))
-        errors_in_file = int(root.get('errors', '0'))  # Parse errors
-        
-        num_tests += tests_in_file
-        num_failures += failures_in_file
-        num_errors += errors_in_file  # Accumulate errors
+        # Check the COUNT_MODE environment variable - default = aggregate
+        count_mode = os.getenv('COUNT_MODE', 'aggregate').lower()
 
-        # if os.getenv('PLUGIN_DEBUG', 'false') == "true":
-        #     log_warning(ET.tostring(root, encoding='utf8').decode('utf8'))
+        if count_mode == 'aggregate':
+            # Use aggregate attributes for counting
+            tests_in_file = int(root.get('tests', '0'))
+            failures_in_file = int(root.get('failures', '0'))
+            errors_in_file = int(root.get('errors', '0'))
+
+            num_tests += tests_in_file
+            num_failures += failures_in_file
+            num_errors += errors_in_file
+        elif count_mode == 'individual':
+            # Iterate over each testcase element and count them as individual tests
+            for testcase in root.findall('.//testcase'):
+                num_tests += 1  # Counting each testcase as an individual test
+
+                # If there's a failure or an error, increment the respective counters
+                if testcase.find('failure') is not None:
+                    num_failures += 1
+
+                if testcase.find('error') is not None:
+                    num_errors += 1
+
+        # Common logic for processing test details
         for testcase in root.findall('.//testcase'):
-            failure = testcase.find('failure')
-            error = testcase.find('error')  # Look for error elements
-            system_error = testcase.find('system-err')
-            if failure is not None:
-                failed_tests_details.append({
-                    'class': testcase.get('classname'),
-                    'name': testcase.get('name'),
-                    'message': failure.get('message'),
-                    'type': "N/A" if failure.get('type') is None else failure.get('type'),
-                    'failure': failure.text,
-                    'stack_trace': "N/A" if system_error is None else system_error.text,
-                })
-            elif error is not None:  # Handle errors separately
-                error_tests_details.append({
-                    'class': testcase.get('classname'),
-                    'name': testcase.get('name'),
-                    'message': error.get('message'),
-                    'type': "N/A" if error.get('type') is None else error.get('type'),
-                    'failure': error.text,
-                    'stack_trace': "N/A" if system_error is None else system_error.text,
-                })
+            process_test_details(testcase)
+
         log_info(f"Processed file '{file_path}' successfully.")
-        if tests_in_file > 0:
-            log_success(f"Processed '{tests_in_file}' tests in file.")
-            if os.getenv('PLUGIN_DEBUG', 'false') == "true":
-                # Serialize the entire XML tree to a byte string and decode it
-                xml_str = ET.tostring(root, encoding='unicode')
-                print(xml_str)
-            if errors_in_file > 0:
-                log_warning(f"Processed '{errors_in_file}' errors in file.")
-            if failures_in_file > 0:
-                log_warning(f"Processed '{failures_in_file}' failures in file.")
+        # Logging individual or aggregate counts based on COUNT_MODE
+        if num_tests > 0:
+            log_success(f"Processed '{num_tests}' tests in file (Mode: {count_mode}).")
+        if num_errors > 0:
+            log_warning(f"Processed '{num_errors}' errors in file.")
+        if num_failures > 0:
+            log_warning(f"Processed '{num_failures}' failures in file.")
     except Exception as e:
         log_error_with_traceback(f"Error processing file '{file_path}'", e)
+
+def process_test_details(testcase):
+    global failed_tests_details, error_tests_details
+    # Extract and store failure/error details from each testcase
+    failure = testcase.find('failure')
+    error = testcase.find('error')
+    system_error = testcase.find('system-err')
+
+    if failure is not None:
+        failed_tests_details.append({
+            'class': testcase.get('classname'),
+            'name': testcase.get('name'),
+            'message': failure.get('message'),
+            'type': "N/A" if failure.get('type') is None else failure.get('type'),
+            'failure': failure.text,
+            'stack_trace': "N/A" if system_error is None else system_error.text,
+        })
+
+    if error is not None:
+        error_tests_details.append({
+            'class': testcase.get('classname'),
+            'name': testcase.get('name'),
+            'message': error.get('message'),
+            'type': "N/A" if error.get('type') is None else error.get('type'),
+            'failure': error.text,
+            'stack_trace': "N/A" if system_error is None else system_error.text,
+        })
 
 def process_directories_glob(pattern):
     log_info(f"Starting processing of directories for JUnit Tests Exporter with pattern: {pattern}")
