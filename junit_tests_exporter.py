@@ -56,15 +56,19 @@ def process_xml_file(file_path):
         tree = ET.parse(file_path)
         root = tree.getroot()
 
-        # Check the COUNT_MODE environment variable - default = aggregate
-        count_mode = os.getenv('COUNT_MODE', 'aggregate').lower()
+        # Check the COUNT_MODE environment variable
+        count_mode = os.getenv('PLUGIN_COUNT_MODE', 'aggregate').lower()
+        
+        tests_in_file = 0
+        failures_in_file = 0
+        errors_in_file = 0
 
         if count_mode == 'aggregate':
             # Use aggregate attributes for counting
             tests_in_file = int(root.get('tests', '0'))
             failures_in_file = int(root.get('failures', '0'))
             errors_in_file = int(root.get('errors', '0'))
-
+            
             num_tests += tests_in_file
             num_failures += failures_in_file
             num_errors += errors_in_file
@@ -72,28 +76,30 @@ def process_xml_file(file_path):
             # Iterate over each testcase element and count them as individual tests
             for testcase in root.findall('.//testcase'):
                 num_tests += 1  # Counting each testcase as an individual test
-
+                tests_in_file += 1  # Counting each testcase as an individual test
                 # If there's a failure or an error, increment the respective counters
                 if testcase.find('failure') is not None:
                     num_failures += 1
-
+                    failures_in_file += 1
                 if testcase.find('error') is not None:
                     num_errors += 1
-
+                    errors_in_file += 1
+                    
         # Common logic for processing test details
         for testcase in root.findall('.//testcase'):
             process_test_details(testcase)
 
         log_info(f"Processed file '{file_path}' successfully.")
         # Logging individual or aggregate counts based on COUNT_MODE
-        if num_tests > 0:
+        if tests_in_file > 0:
             log_success(f"Processed '{num_tests}' tests in file (Mode: {count_mode}).")
-        if num_errors > 0:
+        if errors_in_file > 0:
             log_warning(f"Processed '{num_errors}' errors in file.")
-        if num_failures > 0:
+        if failures_in_file > 0:
             log_warning(f"Processed '{num_failures}' failures in file.")
     except Exception as e:
         log_error_with_traceback(f"Error processing file '{file_path}'", e)
+
 
 def process_test_details(testcase):
     global failed_tests_details, error_tests_details
