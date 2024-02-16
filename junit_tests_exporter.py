@@ -64,10 +64,11 @@ def process_xml_file(file_path):
         errors_in_file = 0
 
         if count_mode == 'aggregate':
-            # Use aggregate attributes for counting
-            tests_in_file = int(root.get('tests', '0'))
-            failures_in_file = int(root.get('failures', '0'))
-            errors_in_file = int(root.get('errors', '0'))
+            # Iterate over each testsuite element
+            for testsuite in root.findall('.//testsuite'):
+                tests_in_file += int(testsuite.get('tests', 0))
+                failures_in_file += int(testsuite.get('failures', 0))
+                errors_in_file += int(testsuite.get('errors', 0))
             
             num_tests += tests_in_file
             num_failures += failures_in_file
@@ -83,8 +84,8 @@ def process_xml_file(file_path):
                     failures_in_file += 1
                 if testcase.find('error') is not None:
                     num_errors += 1
-                    errors_in_file += 1
-                    
+                    errors_in_file += 1  
+        
         # Common logic for processing test details
         for testcase in root.findall('.//testcase'):
             process_test_details(testcase)
