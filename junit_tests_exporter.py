@@ -64,11 +64,11 @@ def process_xml_file(file_path):
         errors_in_file = 0
 
         if count_mode == 'aggregate':
-            # Iterate over each testsuite element
-            for testsuite in root.findall('.//testsuite'):
-                tests_in_file += int(testsuite.get('tests', 0))
-                failures_in_file += int(testsuite.get('failures', 0))
-                errors_in_file += int(testsuite.get('errors', 0))
+            # for testsuite in root.findall('.//testsuite'):
+            tests_in_file += int(root.get('tests', 0))
+            failures_in_file += int(root.get('failures', 0))
+            errors_in_file += int(root.get('errors', 0))
+            print(f"DEBUG: {root.get('name')}: Tests={tests_in_suite}, Failures={failures_in_suite}, Errors={errors_in_suite}")  # Debug print
             
             num_tests += tests_in_file
             num_failures += failures_in_file
