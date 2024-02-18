@@ -43,6 +43,29 @@ steps:
 ![Stack Trace Visualization](junit-exporter-2.png "Stack Trace Errors Visualization")
 ![Summary Results](junit-exporter-3.png "Summary Results and Failure Rate Gate")
 
+### Harness Example 2
+
+```yaml
+              - step:
+                  type: Plugin
+                  name: test_failure_check
+                  identifier: test_failure_check
+                  spec:
+                    connectorRef: account.harnessImage
+                    image: diegokoala/junit_tests_exporter:latest
+                    settings:
+                      THRESHOLD: "<+<+stage.variables.filter_tags> == \"p2_api\" && <+stage.variables.environment> == 'dev' ? 3 : 0>"
+                      EXPRESSION: target/site/serenity/*.xml
+                      DEBUG: "true"
+                      COUNT_MODE: aggregate
+                    imagePullPolicy: Always
+                    resources:
+                      limits:
+                        memory: 100Mi
+                        cpu: 10m
+```
+
+
 ### Drone CI
 
 Example `.drone.yml` step:
